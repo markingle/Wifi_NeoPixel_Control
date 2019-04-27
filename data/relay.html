@@ -326,13 +326,13 @@
     <h2>Set the On Time and Off Time for the live well:</h2>
 	<label for="on_time">Timer Controls (Minutes)</label>
 	<p>
-	<h2> On Time <input type="range" orient="horizontal" style="-webkit-appearance; -webkit-slider-thumb; width:60%; height:150%;" name="on_time" id="ontime_id" value="0" min="0" max="10" oninput="document.getElementById('parM').innerText = parseInt(this.value);parM=parseInt(this.value)" onchange="sendTime()">
+	<h2> On Time <input type="range" orient="horizontal" style="-webkit-appearance; -webkit-slider-thumb; width:60%; height:150%;" name="on_time" id="ontime_id" value="0" min="0" max="10" oninput="document.getElementById('parM').innerText = parseInt(this.value);parM=parseInt(this.value)" oninput="sendTime()">
     
       <!--<h2>A = <input type="range" id="value1" name="parM_choose" min="1" max="9" value="1" step="1" oninput="document.getElementById('parM').innerText = parseInt(this.value);parM=parseInt(this.value)"> -->
 	<output name="show_parM_val" id="parM">0</output></h2>
 	</p>	
     <p>
-    <h2> Off Time <input type="range" orient="horizontal" style="-webkit-; slider-horizontal; width:60%; height:150%;" name="off_time" id="offtime_id" value="0" min="0" max="10" oninput="document.getElementById('parN').innerText = parseInt(this.value);parN=parseInt(this.value)" onchange="sendTime()">
+    <h2> Off Time <input type="range" orient="horizontal" style="-webkit-; slider-horizontal; width:60%; height:150%;" name="off_time" id="offtime_id" value="0" min="0" max="10" oninput="document.getElementById('parN').innerText = parseInt(this.value);parN=parseInt(this.value)" oninput="sendTime()">
      <!--<h2>Off Time <input type="range" id="value2" min="1" max="9" value="2" step="1" oninput="document.getElementById('parN').innerText = parseInt(this.value);parN=parseInt(this.value)">-->
    <output name="show_parN_val" id="parN">0</output></h2>
     </p>

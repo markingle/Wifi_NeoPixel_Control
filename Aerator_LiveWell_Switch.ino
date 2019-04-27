@@ -5,6 +5,8 @@
 #include <SPIFFS.h>
 #include <WebSocketsServer.h>
 
+#include <Adafruit_NeoPixel.h>
+
 //Create a web server
 WebServer server ( 80 );
 
@@ -19,6 +21,12 @@ unsigned int state;
 
 #define GET_SAMPLE__WAITING 0x12
 
+// Which pin on the Arduino is connected to the NeoPixels?
+#define PIN        13 // On Trinket or Gemma, suggest changing this to 1
+
+// How many NeoPixels are attached to the Arduino?
+#define NUMPIXELS 8 // Popular NeoPixel ring size
+
 const char WiFiAPPSK[] = "Livewell";
 
 #define USE_SERIAL Serial
@@ -27,7 +35,7 @@ const char WiFiAPPSK[] = "Livewell";
 uint8_t remote_ip;
 uint8_t socketNumber;
 float value;
-int ontime;   //On time setting from mobile web app
+int i;
 int offtime;  //Off time setting from mobile web app
 
 //These will need to be updated to the GPIO pins for each control circuit.
@@ -37,6 +45,9 @@ int SPEED = 14;
 int LEFT = 12; 
 int RIGHT = 13;
 const int ANALOG_PIN = A0;
+
+// Set pixel id to 0
+int t = 0;
 
 int onoff = 0; 
 
@@ -53,6 +64,10 @@ int Clock_seconds;
 //}
 
 hw_timer_t * timer = NULL;
+
+Adafruit_NeoPixel pixels(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
+
+#define DELAYVAL 500 // Time (in milliseconds) to pause between pixels
 
 void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t lenght) {
     String text = String((char *) &payload[0]);
@@ -87,10 +102,19 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t lenght
                 {
                 Serial.printf("[%u] On Time Setting Control Msg: %s\n", num, payload);
                 Serial.println((char *)payload);
-                ontime = abs(atoi((char *)payload));
+                i = abs(atoi((char *)payload));
                 //uint32_t ontime = (uint32_t) strtol((const char *) &payload[1], NULL, 2);
-                Serial.print("On Time = ");
-                Serial.println(ontime);
+                //Serial.print("On Time = ");
+                //Serial.println(ontime);*/
+                if (i < t)
+                  {
+                  pixels.setPixelColor(i, pixels.Color(0, 0, 0));
+                  pixels.show();   // Send the updated pixel colors to the hardware.
+                  } else {
+                    pixels.setPixelColor(i, pixels.Color(0, 160, 0));
+                    pixels.show();   // Send the updated pixel colors to the hardware.
+                  }
+                  t = i;
                 }
             if (payload[0] == '-')
                 {
@@ -257,7 +281,7 @@ void setupWiFi()
 {
   WiFi.mode(WIFI_AP);
   
-  String AP_NameString = "SeaArk LiveWell";
+  String AP_NameString = "NeoPixel Fun";
 
   char AP_NameChar[AP_NameString.length() + 1];
   memset(AP_NameChar, 0, AP_NameString.length() + 1);
@@ -284,14 +308,7 @@ void IRAM_ATTR onoffTimer(){
       break;
     
     case 1:
-      Serial.println("Turning On Pump " + String(Clock_seconds));
-      digitalWrite(POWER,HIGH);
-      pumpOn = true;
-      Clock_seconds++;
-      if (Clock_seconds > ontime) {
-        onoff = 0;
-        Clock_seconds = 0;
-      }
+     
       break;
     }  
 }
@@ -319,6 +336,9 @@ void stopTimer(){
 }
 
 void setup() {
+
+  pixels.begin(); // INITIALIZE NeoPixel strip object (REQUIRED)
+  
   pinMode(POWER, OUTPUT);
   pinMode(MOMENTARY, OUTPUT);
   pinMode(SPEED, OUTPUT);
